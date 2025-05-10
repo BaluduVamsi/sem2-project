@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Chess Tournament System</h2>
+
+<div class="auth-section">
+    {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }}!</span>
+    {% else %}
+        <a href="{% url 'login' %}" class="btn">Login</a>
+        <a href="{% url 'register' %}" class="btn">Register</a>
+    {% endif %}
+</div>
+
+<h3>Active Tournaments</h3>
+
+{% if tournaments %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Dates</th>
+            <th>Location</th>
+            <th>Rounds</th>
+            <th>Current Round</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tournament in tournaments %}
+        <tr>
+            <td><a href="{% url 'tournament_detail' tournament.id %}">{{ tournament.name }}</a></td>
+            <td>{{ tournament.start_date|date:"Y-m-d" }} to {{ tournament.end_date|date:"Y-m-d" }}</td>
+            <td>{{ tournament.location }}</td>
+            <td>{{ tournament.rounds }}</td>
+            <td>{{ tournament.current_round }}</td>
+            <td>
+                <a href="{% url 'register_player' tournament.id %}" class="btn btn-sm">Register</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    No active tournaments available. 
+    {% if user.is_staff %}
+    <a href="/admin/tournament/tournament/add/">Create one in admin</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

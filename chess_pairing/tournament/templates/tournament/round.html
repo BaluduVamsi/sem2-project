@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ round.tournament.name }} - Round {{ round.round_number }}</h2>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Board</th>
+            <th>White Player</th>
+            <th>Black Player</th>
+            <th>Result</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for game in games %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ game.white_player.user.username }}</td>
+            <td>{{ game.black_player.user.username|default:"BYE" }}</td>
+            <td>{{ game.get_result_display }}</td>
+            <td>
+                {% if not round.is_completed %}
+                <form method="post" action="{% url 'submit_result' game.id %}">
+                    {% csrf_token %}
+                    <select name="result">
+                        <option value="1">1-0</option>
+                        <option value="0">0-1</option>
+                        <option value="½">½-½</option>
+                    </select>
+                    <button type="submit">Submit</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">
+                {% if round.round_number == 0 %}
+                Tournament not started yet
+                {% else %}
+                No games scheduled for this round (pairing error)
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if not round.is_completed and request.user.is_staff %}
+<form method="post" action="{% url 'complete_round' round.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Complete Round</button>
+</form>
+{% endif %}
+
+{% endblock %}

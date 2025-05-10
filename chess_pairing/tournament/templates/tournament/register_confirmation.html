@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Register for {{ tournament.name }}</h2>
+<p>You're registering as: {{ request.user.username }}</p>
+<p>Current rating: {{ request.user.player.rating }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Confirm Registration</button>
+    <a href="{% url 'tournament_detail' tournament.id %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

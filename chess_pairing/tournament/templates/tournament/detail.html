@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{{ tournament.name }}</h2>
+    <p><strong>Dates:</strong> {{ tournament.start_date }} to {{ tournament.end_date }}</p>
+    <p><strong>Location:</strong> {{ tournament.location }}</p>
+    <p><strong>Rounds:</strong> {{ tournament.rounds }} (Current: {{ tournament.current_round }})</p>
+    
+    <h3>Registered Players</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Rating</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reg in registrations %}
+                <tr>
+                    <td>{{ reg.player.user.get_full_name }}</td>
+                    <td>{{ reg.player.rating }}</td>
+                    <td>{{ reg.player.title|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No players registered yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h3>Rounds</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Round</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for round in rounds %}
+                <tr>
+                    <td><a href="{% url 'round_detail' round.id %}">Round {{ round.round_number }}</a></td>
+                    <td>{% if round.is_completed %}Completed{% else %}In Progress{% endif %}</td>
+                    <td>
+                        <a href="{% url 'round_detail' round.id %}" class="btn">View</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No rounds created yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if tournament.current_round < tournament.rounds and tournament.is_active %}
+        <form method="post" action="{% url 'pair_round' tournament.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Pair Next Round</button>
+        </form>
+    {% endif %}
+{% endblock %}
